@@ -225,7 +225,10 @@ having count(e.emp_id) >2;
 
 # 20. Get employees who are managers (their IDs appear in manager_id column).
 
-
+select * from employees;
+ select first_name,last_name,manager_id
+ from employees
+ where manager_id is NOT null;
 
 Show employees and their manager names.
 
