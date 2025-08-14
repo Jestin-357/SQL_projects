@@ -230,6 +230,7 @@ select * from employees;
  from employees
  where manager_id is NOT null;
 
+ads
 Show employees and their manager names.
 
 Find employees hired in the year 2021.
