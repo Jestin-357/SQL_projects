@@ -308,7 +308,7 @@ select * from employees;
 select * from `EmployeeProjects`;
 select * from `Projects`;
 
-
+select * from empl
 
 
 Find projects handled by the 'Finance' department.
