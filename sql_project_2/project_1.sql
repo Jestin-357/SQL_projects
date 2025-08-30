@@ -307,51 +307,180 @@ order by p.project_id;;
 select * from employees;
 select * from `EmployeeProjects`;
 select * from `Projects`;
+select  e.emp_id,e.first_name,e.last_name,ep.role,ep.project_id,p.project_name
+from employees e
+right join `EmployeeProjects` ep
+on e.emp_id = ep.emp_id
+left join projects p
+on ep.project_id = p.project_id
+order by e.emp_id;
 
-select * from empl
+# 28. Find projects handled by the 'Finance' department.
+select * from `Projects`;
+select * from departments;
+select * from `EmployeeProjects`;
+select * from employees;
+select  e.emp_id,e.first_name,e.last_name,p.project_name,d.dept_id,d.dept_name
+from employees e 
+inner join `EmployeeProjects` Ep 
+ON e.emp_id = ep.emp_id
+inner join  projects p
+on ep.project_id = p.project_id
+inner join departments d 
+on  d.dept_id = p.dept_id
+where  dept_name = "finance";
 
 
-Find projects handled by the 'Finance' department.
+
+# 29. Get employees with salary between 50,000 and 70,000.
+select * from employees
+where salary BETWEEN 50000 and 70000
+order by salary DESC;
+
+# 30. Show employees whose last name ends with 'son'.
+select * from employees
+where last_name like "%son";
+
+# 31. Find employees whose salary is above average.
+select * from employees;
+select avg(salary) as avg_salary from employees;
+select * from employees
+where salary >(select avg(salary) from employees);
+
+-- CTC method
+WITH avg_sal AS (
+    SELECT AVG(salary) AS avg_salary FROM employees
+)
+SELECT e.emp_id, e.first_name, e.last_name, e.salary
+FROM employees e, avg_sal
+WHERE e.salary > avg_sal.avg_salary;
 
 
 
-Get employees with salary between 50,000 and 70,000.
+# 32. Count employees in each project.
 
-Show employees whose last name ends with 'son'.
+select p.project_id,p.project_name,count(e.emp_id) as no_employees
+from employees e
+left join `EmployeeProjects` ep
+on e.emp_id = ep.emp_id
+left join projects p
+on ep.project_id = p.project_id
+group by p.project_id, p.project_name
+order by p.project_id;
 
-Find employees whose salary is above average.
 
-Count employees in each project.
+# 33.Find departments with no projects.
+select d.dept_id,d.dept_name
+from departments d
+left join `Projects` p 
+on d.dept_id = p.dept_id
+where p.project_id is null;
 
-Find departments with no projects.
 
-C. Advanced (36–50)
-Show top 3 highest-paid employees.
+# 34. Show top 3 highest-paid employees.
+select * from employees;
+select * from employees order by salary DESC limit 3;
+-- another way
+select emp_id,first_name,last_name,salary
+from (
+  select e.*,
+    row_number() over(ORDER BY salary DESC) as ROW_no
+  from employees e 
+) ranked
+where row_no <= 3;
+-- rank method
+select emp_id,first_name,last_name,salary
+from (
+  select e.*,
+    RANK() over(order by salary desc) as rnk
+  from employees e
+ ) ranked
+ where rnk <= 3;
 
-Find employees hired the earliest in each department.p
 
-Get department with the maximum average salary.
+# 35.Find employees hired the earliest in each department
+select * from employees;
+select e.dept_id,e.first_name,e.last_name,e.hire_date,e.salary
+from employees e
+where e.hire_date = (
+  select min(hire_date)
+  from employees
+  where dept_id =e.dept_id
+);
 
-Show salary difference between highest and lowest paid employee.
 
-Rank employees by salary in each department.
+# 36. Get department with the maximum average salary.
+select  d.dept_id,d.dept_name, avg(e.salary) as avg_sal
+from employees e
+inner join departments d
+on e.dept_id = d.dept_id
+group by dept_id,dept_name
+order by avg_sal DESC
+limit 2;
 
-Show cumulative salary per department ordered by hire_date.
 
-Find employees working in all projects of their department.
 
-Show managers with their number of direct reports.
+# 37. Get department with the average salary
+SELECT d.dept_name,d.dept_id, avg(salary) as avg_sal
+from employees e
+inner join departments d
+on e.dept_id = d.dept_id
+group by d.dept_name, d.dept_id
+order by avg_sal desc;;
 
-Get employees whose project duration is more than 5 months.
 
-Find departments with the total salary > 150,000.
+# 38.Show salary difference between highest and lowest paid employee.
 
-List projects with overlapping dates.
+select max(salary) - min(salary) as sal_difference
+from employees;
 
-Find employees who joined before their manager.
+# 39.Rank employees by salary in each department.
 
-Show total number of employees per hire year.
+SELECT 
+    e.emp_id, 
+    e.first_name, 
+    e.last_name, 
+    e.salary, 
+    e.dept_id,
+    RANK() OVER (PARTITION BY d.dept_id ORDER BY e.salary DESC) AS salary_rank
+FROM employees e
+JOIN departments d
+    ON e.dept_id = d.dept_id
+ORDER BY d.dept_id, salary_rank;
 
-Show employees who are the only ones in their department.
+# 39. Show cumulative salary per department ordered by hire_date.
 
-Delete employees who have no projects assigned. (for practice, run on copy)
+SELECT 
+    d.dept_id,
+    d.dept_name,
+    e.hire_date,
+    SUM(e.salary) OVER (
+        PARTITION BY d.dept_id 
+        ORDER BY e.hire_date
+        ROWS UNBOUNDED PRECEDING
+    ) AS cumulative_salary
+FROM employees e
+JOIN departments d 
+    ON e.dept_id = d.dept_id
+ORDER BY d.dept_id, e.hire_date;
+
+# 40. Find employees working in all projects of their department.
+
+
+
+
+# 41.Show managers with their number of direct reports.
+
+# 42. Get employees whose project duration is more than 5 months.
+
+# 43. Find departments with the total salary > 150,000.
+
+# 44. List projects with overlapping dates.
+
+# 45. Find employees who joined before their manager.
+
+# 46. Show total number of employees per hire year.
+
+# 47. Show employees who are the only ones in their department.
+
+# 48. Delete employees who have no projects assigned. (for practice, run on copy)
