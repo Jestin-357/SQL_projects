@@ -466,21 +466,16 @@ ORDER BY d.dept_id, e.hire_date;
 
 # 40. Find employees working in all projects of their department.
 
-
-
-
-# 41.Show managers with their number of direct reports.
-
-# 42. Get employees whose project duration is more than 5 months.
-
-# 43. Find departments with the total salary > 150,000.
-
-# 44. List projects with overlapping dates.
-
-# 45. Find employees who joined before their manager.
-
-# 46. Show total number of employees per hire year.
-
-# 47. Show employees who are the only ones in their department.
-
-# 48. Delete employees who have no projects assigned. (for practice, run on copy)
+select
+  e.emp_id, e.first_name, e.last_name, e.dept_id
+  from employees e
+  join `EmployeeProjects` ep  
+  on e.emp_id = ep.emp_id
+  join projects p
+  on ep.project_id = p.project_id
+  where p.dept_id = e.dept_id
+  group by e.emp_id, e.first_name, e.last_name, e.dept_id
+  having count(DISTINCT ep.project_id) = (
+    select count(distinct p2.project_id)
+    from projects p2
+    where p2.dept_id = e.dept_id);
